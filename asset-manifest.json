@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/react-game-sandbox/static/css/main.f855e6bc.css",
-    "main.js": "/react-game-sandbox/static/js/main.57d6cb4d.js",
+    "main.css": "/react-game-sandbox/static/css/main.e6c13ad2.css",
+    "main.js": "/react-game-sandbox/static/js/main.dca7dffb.js",
     "static/js/787.efca225f.chunk.js": "/react-game-sandbox/static/js/787.efca225f.chunk.js",
     "index.html": "/react-game-sandbox/index.html",
-    "main.f855e6bc.css.map": "/react-game-sandbox/static/css/main.f855e6bc.css.map",
-    "main.57d6cb4d.js.map": "/react-game-sandbox/static/js/main.57d6cb4d.js.map",
+    "main.e6c13ad2.css.map": "/react-game-sandbox/static/css/main.e6c13ad2.css.map",
+    "main.dca7dffb.js.map": "/react-game-sandbox/static/js/main.dca7dffb.js.map",
     "787.efca225f.chunk.js.map": "/react-game-sandbox/static/js/787.efca225f.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f855e6bc.css",
-    "static/js/main.57d6cb4d.js"
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.dca7dffb.js"
   ]
 }
