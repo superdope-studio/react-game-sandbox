@@ -5,7 +5,7 @@ export const Home = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setLocation] = useLocation();
   return (
-    <Container>
+    <Container sx={{ paddingTop: "64px" }}>
       <Box sx={{ display: "flex", flexDirection: "column", padding: "40px" }}>
         <Button
           onClick={() => {

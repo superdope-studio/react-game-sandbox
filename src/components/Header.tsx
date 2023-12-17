@@ -14,6 +14,11 @@ export const Header = () => {
       showIcon = false;
       break;
 
+    case "/react-game-sandbox/":
+      title = "Home";
+      showIcon = false;
+      break;
+
     case "/react-game-sandbox/deck":
       title = "Deck";
       showIcon = true;
@@ -30,7 +35,7 @@ export const Header = () => {
   return (
     <Box>
       <AppBar
-        position="static"
+        position="fixed"
         sx={{
           padding: "10px",
           display: "flex",
@@ -41,7 +46,7 @@ export const Header = () => {
         {showIcon && (
           <IconButton
             onClick={() => {
-              setLocation("/react-game-sandbox");
+              setLocation("/react-game-sandbox/");
             }}
           >
             <Home sx={{ color: "white" }} />
