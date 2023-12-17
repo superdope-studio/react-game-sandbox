@@ -2,6 +2,7 @@
   "name": "react-sandbox",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://superdope-studio.github.io/react-game-sandbox/",
   "dependencies": {
     "@pixi/react": "^7.1.1",
     "@testing-library/jest-dom": "^5.17.0",
