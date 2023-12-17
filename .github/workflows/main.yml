@@ -22,6 +22,6 @@ jobs:
       - name: Publish github pages
         run: |
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/superdope-studio/react-game-sandbox.git
-          npm run gh-pages -- -u "github-actions-bot <support+actions@github.com>"
+          npx gh-pages -- -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
