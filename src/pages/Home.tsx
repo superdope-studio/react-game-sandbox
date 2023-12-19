@@ -2,8 +2,7 @@ import { Container, Box, Button } from "@mui/material";
 import { useLocation } from "wouter";
 
 export const Home = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   return (
     <Container sx={{ paddingTop: "64px" }}>
       <Box sx={{ display: "flex", flexDirection: "column", padding: "40px" }}>

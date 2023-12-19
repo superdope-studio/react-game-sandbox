@@ -1,5 +1,14 @@
 import React, { useContext, useState } from "react";
+
 import { GameCard, playerDeck } from "../data/cards";
+
+/**
+ * state management for most all game state should live here (for now)
+ * export helpers for components to call to mutate state
+ * those helpers should just call setState within the context
+ * not render efficient, but simple
+ *
+ */
 
 type GameState = {
   playerHand: GameCard[];
@@ -7,24 +16,44 @@ type GameState = {
   battleground: GameCard[]; //for now just an array of the cards that have been played in order
 };
 
-const initialState: {
+interface GameStateContextType {
   gameState: GameState;
-  setGameState: any;
-} = {
-  gameState: {
-    playerHand: [...playerDeck], // make a copy of the deck to use as initial hand for now
-    playerDeck: playerDeck,
-    battleground: [],
-  },
-  setGameState: (gameState: any) => {},
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  playCard: (cardIndex: number) => void;
+}
+
+const initialState: GameState = {
+  playerHand: [...playerDeck], // make a copy of the deck to use as initial hand for now
+  playerDeck: playerDeck,
+  battleground: [],
 };
 
-const GameStateContext = React.createContext(initialState);
+const GameStateContext = React.createContext<GameStateContextType | undefined>(
+  undefined
+);
 
 export const GameStateProvider = ({ children }: { children: any }) => {
-  const [gameState, setGameState] = useState(initialState.gameState);
+  const [gameState, setGameState] = useState<GameState>(initialState);
 
-  const value = { gameState, setGameState };
+  /** lil baby state helpers go here, no need for redux */
+
+  /**
+   * TODO
+   * perform checks to see if the card can be played
+   * update game state based on card effects (energy cost, damage, etc)
+   */
+  const playCard = (cardIndex: number) => {
+    const newPlayerHand = [...gameState.playerHand];
+    const card = newPlayerHand.splice(cardIndex, 1);
+    const newBattleground = gameState.battleground.concat(card);
+    setGameState((prevState: any) => ({
+      ...prevState,
+      playerHand: newPlayerHand,
+      battleground: newBattleground,
+    }));
+  };
+
+  const value = { gameState, setGameState, playCard };
 
   return (
     <GameStateContext.Provider value={value}>

@@ -1,12 +1,7 @@
 import { Box } from "@mui/material";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { PlayerHand } from "../components/PlayerHand";
-import BoardSquare from "../components/Battleground";
 
-export const ItemTypes = {
-  CARD: "card",
-};
+import { PlayerHand } from "../components/PlayerHand";
+import { Battleground } from "../components/Battleground";
 
 export const Battle = () => {
   return (
@@ -22,7 +17,7 @@ export const Battle = () => {
         Enemy Area
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", flexGrow: 1 }}>
-        <BoardSquare />
+        <Battleground />
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", flexGrow: 1 }}>
         <PlayerHand />

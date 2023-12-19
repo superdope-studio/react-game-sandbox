@@ -1,39 +1,28 @@
-import React from "react";
-import { ItemTypes } from "../pages/Battle";
+import { ItemTypes } from "../data/constants";
 import { useDrop } from "react-dnd";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
+
 import { useGameState } from "../contexts/GameStateContext";
 import { GameCard } from "../data/cards";
 import { CardComponent } from "./Card";
 
-function Battleground({ x, y, children }: any) {
-  const { gameState, setGameState } = useGameState();
+export const Battleground = () => {
+  const { gameState, playCard } = useGameState();
   const battleground = gameState.battleground;
-
-  const updateGameState = (arg: any) => {
-    setGameState(arg);
-  };
 
   const [{ isOver }, drop] = useDrop(
     () => ({
       accept: ItemTypes.CARD,
-      drop: ({ index }: { index: number }) => {
-        const card = gameState.playerHand[index];
-        const newBattleground = gameState.battleground.concat([card]);
-        updateGameState((prevState: any) => ({
-          ...prevState,
-          battleground: newBattleground,
-        }));
-      },
+      drop: ({ index }: { index: number }) => playCard(index),
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
       }),
     }),
-    [gameState, setGameState, updateGameState]
+    [gameState]
   );
 
   return (
-    <div
+    <Box
       ref={drop}
       style={{
         position: "relative",
@@ -41,8 +30,17 @@ function Battleground({ x, y, children }: any) {
         height: "100%",
       }}
     >
-      <Box>
-        <Box>Battleground</Box>
+      <Box textAlign="center">
+        Battleground ({gameState.battleground.length} cards)
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          maxHeight: "33vh",
+          overflow: "scroll",
+        }}
+      >
         {battleground.map((card: GameCard, idx) => (
           <Box key={idx}>
             <CardComponent gameCard={card} index={idx} />
@@ -63,8 +61,6 @@ function Battleground({ x, y, children }: any) {
           }}
         />
       )}
-    </div>
+    </Box>
   );
-}
-
-export default Battleground;
+};
