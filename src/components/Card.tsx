@@ -5,11 +5,24 @@ import {
   CardContent,
   Typography,
 } from "@mui/material";
+
 import type { GameCard } from "../data/cards";
 
-export const CardComponent = ({ gameCard }: { gameCard: GameCard }) => {
+export const CardComponent = ({
+  gameCard,
+}: {
+  gameCard: GameCard;
+  index: number;
+}) => {
   return (
-    <Card sx={{ minWidth: 275, maxWidth: 400 }}>
+    <Card
+      sx={{
+        minWidth: 275,
+        maxWidth: 400,
+        fontSize: 25,
+        fontWeight: "bold",
+      }}
+    >
       <CardContent>
         <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
           {gameCard.title}
