@@ -1,50 +1,40 @@
 export type GameCard = {
-    title: string;
-    description: string;
-    energyCost: number;
-    damage: number;
-    effectApplied?: string;
-}
+  title: string;
+  energyCost: number;
+  damage: number;
+  effectApplied?: string;
+  type: "Attack" | "Defense" | "Utility";
+};
 
-export const playerDeck: GameCard[] = [{
-    title: "Smash",
-    description: "Smash your enemy",
+export const playerDeck: GameCard[] = [
+  {
+    title: "Flame Jet",
+    damage: 4,
+    energyCost: 3,
+    type: "Attack",
+  },
+  {
+    title: "Gear Strike",
+    damage: 3,
     energyCost: 2,
+    type: "Attack",
+  },
+  {
+    title: "Steam Blast",
+    damage: 5,
+    energyCost: 4,
+    type: "Attack",
+  },
+  {
+    title: "Bolt Throw",
     damage: 2,
-}, {
-    title: "Smoke Screen",
-    description: "Hide in the smoke",
-    energyCost: 2,
-    damage: 0,
-    effectApplied: "Hidden"
-},{
-    title: "Smoke Screen",
-    description: "Hide in the smoke",
-    energyCost: 2,
-    damage: 0,
-    effectApplied: "Hidden"
-},{
-    title: "Smoke Screen",
-    description: "Hide in the smoke",
-    energyCost: 2,
-    damage: 0,
-    effectApplied: "Hidden"
-},{
-    title: "Smoke Screen",
-    description: "Hide in the smoke",
-    energyCost: 2,
-    damage: 0,
-    effectApplied: "Hidden"
-},{
-    title: "Smoke Screen",
-    description: "Hide in the smoke",
-    energyCost: 2,
-    damage: 0,
-    effectApplied: "Hidden"
-},{
-    title: "Smoke Screen",
-    description: "Hide in the smoke",
-    energyCost: 2,
-    damage: 0,
-    effectApplied: "Hidden"
-}]
+    energyCost: 1,
+    type: "Attack",
+  },
+  {
+    title: "Cog Barrage",
+    damage: 6,
+    energyCost: 5,
+    type: "Attack",
+  },
+];

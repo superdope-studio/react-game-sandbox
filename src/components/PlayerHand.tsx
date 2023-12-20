@@ -9,14 +9,16 @@ import { CardComponent } from "./Card";
 
 const DraggagleWrapper = ({
   index,
+  gameCard,
   children,
 }: {
   index: number;
+  gameCard: GameCard;
   children: React.ReactNode;
 }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.CARD,
-    item: { index },
+    item: { index, gameCard },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -26,8 +28,6 @@ const DraggagleWrapper = ({
     <Box
       ref={drag}
       sx={{
-        minWidth: 275,
-        maxWidth: 400,
         opacity: isDragging ? 0.5 : 1,
         fontSize: 25,
         fontWeight: "bold",
@@ -44,8 +44,12 @@ export const PlayerHand = () => {
   const playerHand = gameState.playerHand;
   return (
     <Box sx={{ width: "100vw" }}>
-      <Box sx={{ textAlign: "center" }}>
-        Player Hand ({gameState.playerHand.length} cards)
+      <Box sx={{ display: "flex", justifyContent: "space-around" }}>
+        <Box>Energy: {gameState.playerEnergy}</Box>
+        <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
+          Player Hand
+        </Box>
+        <Box>Health: {gameState.playerHealth}</Box>
       </Box>
       <Box
         sx={{
@@ -56,7 +60,7 @@ export const PlayerHand = () => {
         }}
       >
         {playerHand.map((card: GameCard, idx) => (
-          <DraggagleWrapper key={idx} index={idx}>
+          <DraggagleWrapper key={idx} index={idx} gameCard={card}>
             <CardComponent gameCard={card} index={idx} />
           </DraggagleWrapper>
         ))}
