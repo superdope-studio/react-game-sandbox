@@ -44,8 +44,12 @@ export const PlayerHand = () => {
   const playerHand = gameState.playerHand;
   return (
     <Box sx={{ width: "100vw" }}>
-      <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
-        Player Hand ({gameState.playerHand.length} cards)
+      <Box sx={{ display: "flex", justifyContent: "space-around" }}>
+        <Box>Energy: {gameState.playerEnergy}</Box>
+        <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
+          Player Hand
+        </Box>
+        <Box>Health: {gameState.playerHealth}</Box>
       </Box>
       <Box
         sx={{

@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography } from "@mui/material";
 
 import type { GameCard } from "../data/cards";
 
@@ -29,9 +29,18 @@ export const CardComponent = ({
         >
           {gameCard.title}
         </Typography>
-        <Typography variant="h5" component="div"></Typography>
-
-        <Typography variant="body2">{gameCard.description}</Typography>
+        <Box
+          component={Typography}
+          variant="body1"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box>Damage: {gameCard.damage}</Box>
+          <Box>Cost: {gameCard.energyCost}</Box>
+        </Box>
       </CardContent>
     </Card>
   );
