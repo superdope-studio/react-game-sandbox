@@ -7,16 +7,26 @@ import { GameCard } from "../data/cards";
 import { CardComponent } from "./Card";
 
 export const Battleground = () => {
-  const { gameState, playCard } = useGameState();
+  const { gameState, playCard, cardCanBePlayed } = useGameState();
   const battleground = gameState.battleground;
 
-  const [{ isOver }, drop] = useDrop(
+  const [{ isOver, isValid }, drop] = useDrop(
     () => ({
       accept: ItemTypes.CARD,
-      drop: ({ index }: { index: number }) => playCard(index),
-      collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
-      }),
+      drop: ({ index, gameCard }: { index: number; gameCard: GameCard }) => {
+        // if the card is valid, allow drop action
+        if (cardCanBePlayed(gameCard)) {
+          playCard(index);
+        }
+      },
+      collect: (monitor) =>
+        // collector runs while dragging is happening
+        // use to change the UI while dragging
+        ({
+          isOver: !!monitor.isOver(),
+          isValid:
+            monitor.getItem() && cardCanBePlayed(monitor.getItem()?.gameCard),
+        }),
     }),
     [gameState]
   );
@@ -57,7 +67,7 @@ export const Battleground = () => {
             width: "100%",
             zIndex: 4,
             opacity: 0.5,
-            backgroundColor: "yellow",
+            backgroundColor: isValid ? "green" : "red",
           }}
         />
       )}

@@ -15,6 +15,7 @@ type GameState = {
   playerEnergy: number;
   enemyHealth: number;
   enemyEnergy: number;
+  playerTurn: boolean;
   playerHand: GameCard[];
   playerDeck: GameCard[];
   battleground: GameCard[]; //for now just an array of the cards that have been played in order
@@ -25,6 +26,7 @@ interface GameStateContextType {
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   playCard: (cardIndex: number) => void;
   startGame: () => void;
+  cardCanBePlayed: (card: GameCard) => boolean;
 }
 
 const initialState: GameState = {
@@ -32,6 +34,7 @@ const initialState: GameState = {
   playerEnergy: 10,
   enemyHealth: 10,
   enemyEnergy: 10,
+  playerTurn: true,
   playerHand: [...playerDeck], // make a copy of the deck to use as initial hand for now
   playerDeck: playerDeck,
   battleground: [],
@@ -47,8 +50,24 @@ export const GameStateProvider = ({ children }: { children: any }) => {
   /** lil baby state helpers go here, no need for redux */
 
   /**
-   * TODO
-   * perform checks to see if the card can be played
+   *
+   * Determine if the card is a valid move given the
+   * current game state
+   * TODO - expand logic
+   */
+  const cardCanBePlayed = (card: GameCard) => {
+    if (!gameState.playerTurn) {
+      return false;
+    }
+
+    if (gameState.playerEnergy < card.energyCost) {
+      return false;
+    }
+
+    return true;
+  };
+
+  /**
    * update game state based on card effects (energy cost, damage, etc)
    */
   const playCard = (cardIndex: number) => {
@@ -56,7 +75,7 @@ export const GameStateProvider = ({ children }: { children: any }) => {
     const [card] = newPlayerHand.splice(cardIndex, 1);
     const newBattleground = gameState.battleground.concat([card]);
 
-    // process card effects, very simply logic for now
+    // process card effects, very simple logic for now
     const newEnemyHealth = gameState.enemyHealth - card.damage;
     const newPlayerEnergy = gameState.playerEnergy - card.energyCost;
 
@@ -87,13 +106,19 @@ export const GameStateProvider = ({ children }: { children: any }) => {
     const randomIndex = Math.floor(Math.random() * gameState.playerDeck.length);
     const randomCard = gameState.playerDeck[randomIndex];
     const newPlayerHand = [randomCard];
-    setGameState((prevState: GameState) => ({
+    setGameState(() => ({
       ...initialState,
       playerHand: newPlayerHand,
     }));
   };
 
-  const value = { gameState, setGameState, playCard, startGame };
+  const value = {
+    gameState,
+    setGameState,
+    playCard,
+    startGame,
+    cardCanBePlayed,
+  };
 
   return (
     <GameStateContext.Provider value={value}>
