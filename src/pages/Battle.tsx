@@ -10,7 +10,7 @@ export const Battle = () => {
         paddingTop: "64px",
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
+        height: "90vh",
       }}
     >
       <Box sx={{ display: "flex", justifyContent: "center", flexGrow: 1 }}>

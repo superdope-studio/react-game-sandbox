@@ -13,11 +13,12 @@ import { Header } from "./components/Header";
 
 import { Preview } from "react-dnd-preview";
 import { GameStateProvider } from "./contexts/GameStateContext";
+import { CardComponent } from "./components/Card";
 
 const generatePreview = ({ itemType, item, style }: any) => {
   return (
     <div className="item-list__item" style={style}>
-      {itemType}
+      <CardComponent gameCard={item.gameCard} index={item.index} />
     </div>
   );
 };

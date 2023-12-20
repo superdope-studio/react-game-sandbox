@@ -1,10 +1,4 @@
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Typography,
-} from "@mui/material";
+import { Card, CardContent, Typography } from "@mui/material";
 
 import type { GameCard } from "../data/cards";
 
@@ -17,23 +11,28 @@ export const CardComponent = ({
   return (
     <Card
       sx={{
-        minWidth: 275,
+        minWidth: "120px",
         maxWidth: 400,
         fontSize: 25,
         fontWeight: "bold",
+        marginLeft: "8px",
+        marginRight: "8px",
+        marginBottom: "16px",
+        height: "99%",
       }}
     >
       <CardContent>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+        <Typography
+          sx={{ fontSize: 14, fontWeight: 600 }}
+          color="text.primary"
+          gutterBottom
+        >
           {gameCard.title}
         </Typography>
         <Typography variant="h5" component="div"></Typography>
 
         <Typography variant="body2">{gameCard.description}</Typography>
       </CardContent>
-      <CardActions>
-        <Button size="small">View Details</Button>
-      </CardActions>
     </Card>
   );
 };
