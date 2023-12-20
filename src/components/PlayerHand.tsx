@@ -16,13 +16,16 @@ const DraggagleWrapper = ({
   gameCard: GameCard;
   children: React.ReactNode;
 }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: ItemTypes.CARD,
-    item: { index, gameCard },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: ItemTypes.CARD,
+      item: { index, gameCard },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
     }),
-  }));
+    [gameCard]
+  );
 
   return (
     <Box
