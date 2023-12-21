@@ -1,6 +1,10 @@
 import React, { useContext, useState } from "react";
 
-import { GameCard, playerDeck } from "../data/cards";
+import {
+  GameCard,
+  enemyDeck as initialEnemyDeck,
+  playerDeck as initialPlayerDeck,
+} from "../data/cards";
 
 /**
  * state management for most all game state should live here (for now)
@@ -18,6 +22,8 @@ type GameState = {
   playerTurn: boolean;
   playerHand: GameCard[];
   playerDeck: GameCard[];
+  enemyHand: GameCard[];
+  enemyDeck: GameCard[];
   battleground: GameCard[]; //for now just an array of the cards that have been played in order
 };
 
@@ -27,6 +33,8 @@ interface GameStateContextType {
   playCard: (cardIndex: number) => void;
   startGame: () => void;
   cardCanBePlayed: (card: GameCard) => boolean;
+  endTurn: () => void;
+  processEnemyTurn: () => void;
 }
 
 const initialState: GameState = {
@@ -35,8 +43,10 @@ const initialState: GameState = {
   enemyHealth: 10,
   enemyEnergy: 10,
   playerTurn: true,
-  playerHand: [...playerDeck], // make a copy of the deck to use as initial hand for now
-  playerDeck: playerDeck,
+  playerHand: [],
+  playerDeck: initialPlayerDeck,
+  enemyDeck: initialEnemyDeck,
+  enemyHand: [],
   battleground: [],
 };
 
@@ -48,6 +58,15 @@ export const GameStateProvider = ({ children }: { children: any }) => {
   const [gameState, setGameState] = useState<GameState>(initialState);
 
   /** lil baby state helpers go here, no need for redux */
+
+  const endTurn = () => {
+    setGameState((prevState: GameState) => ({
+      ...prevState,
+      playerTurn: false,
+    }));
+
+    processEnemyTurn();
+  };
 
   /**
    *
@@ -71,6 +90,7 @@ export const GameStateProvider = ({ children }: { children: any }) => {
    * update game state based on card effects (energy cost, damage, etc)
    */
   const playCard = (cardIndex: number) => {
+    let newPlayerDeck = [...gameState.playerDeck];
     let newPlayerHand = [...gameState.playerHand];
     const [card] = newPlayerHand.splice(cardIndex, 1);
     const newBattleground = gameState.battleground.concat([card]);
@@ -80,9 +100,12 @@ export const GameStateProvider = ({ children }: { children: any }) => {
     const newPlayerEnergy = gameState.playerEnergy - card.energyCost;
 
     // draw new card
-    const randomIndex = Math.floor(Math.random() * gameState.playerDeck.length);
-    const randomCard = gameState.playerDeck[randomIndex];
-    newPlayerHand = [randomCard];
+    const randomIndex = Math.floor(Math.random() * newPlayerDeck.length);
+    const randomCard = newPlayerDeck[randomIndex];
+
+    // remove drawn card from deck
+    newPlayerDeck.splice(randomIndex, 1);
+    newPlayerHand.push(randomCard);
 
     // check for win?!
     if (newEnemyHealth <= 0) {
@@ -91,6 +114,7 @@ export const GameStateProvider = ({ children }: { children: any }) => {
 
     setGameState((prevState: GameState) => ({
       ...prevState,
+      playerDeck: newPlayerDeck,
       playerHand: newPlayerHand,
       battleground: newBattleground,
       enemyHealth: newEnemyHealth,
@@ -103,12 +127,80 @@ export const GameStateProvider = ({ children }: { children: any }) => {
    * put it in the player hand
    */
   const startGame = () => {
-    const randomIndex = Math.floor(Math.random() * gameState.playerDeck.length);
-    const randomCard = gameState.playerDeck[randomIndex];
-    const newPlayerHand = [randomCard];
+    const startingCards = 3;
+    const newPlayerHand: GameCard[] = [];
+    const newEnemyHand: GameCard[] = [];
+    // build player hand
+    const playerDeck = [...initialPlayerDeck];
+
+    // pull startCards number of cards from deck
+    for (let index = 0; index < startingCards; index++) {
+      const playerRandomIndex = Math.floor(Math.random() * playerDeck.length);
+      const playerRandomCard = playerDeck[playerRandomIndex];
+      playerDeck.splice(playerRandomIndex, 1);
+      newPlayerHand.push(playerRandomCard);
+    }
+
+    // build enemy hand
+    const enemyDeck = [...initialEnemyDeck];
+
+    for (let index = 0; index < startingCards; index++) {
+      const enemyRandomIndex = Math.floor(Math.random() * enemyDeck.length);
+      const enemyRandomCard = enemyDeck[enemyRandomIndex];
+      enemyDeck.splice(enemyRandomIndex, 1);
+      newEnemyHand.push(enemyRandomCard);
+    }
+
     setGameState(() => ({
       ...initialState,
+      playerDeck,
       playerHand: newPlayerHand,
+      enemyHand: newEnemyHand,
+    }));
+  };
+
+  /**
+   * figure out enemy AI here, resolve their cards
+   *
+   * This is a separate process now, but card events should
+   * have a target and a source associated with them to allow for a generic
+   * resolver function to work for both player and enemy cards
+   */
+  const processEnemyTurn = () => {
+    let newEnemyDeck = [...gameState.enemyDeck];
+    let newEnemyHand = [...gameState.enemyHand];
+
+    // for now, enemy just plays random card from hand
+    const enemyRandomIndex = Math.floor(Math.random() * newEnemyHand.length);
+
+    const [playedCard] = newEnemyHand.splice(enemyRandomIndex, 1);
+    const newBattleground = gameState.battleground.concat([playedCard]);
+
+    // process card effects, very simple logic for now
+    const newPlayerHealth = gameState.playerHealth - playedCard.damage;
+    const newEnemyEnergy = gameState.enemyEnergy - playedCard.energyCost;
+
+    // draw new card
+    const randomIndex = Math.floor(Math.random() * newEnemyDeck.length);
+    const randomCard = newEnemyDeck[randomIndex];
+
+    // remove drawn card from deck
+    newEnemyDeck.splice(randomIndex, 1);
+    newEnemyHand.push(randomCard);
+
+    // check for loss?!
+    if (newPlayerHealth <= 0) {
+      alert("you lose!");
+    }
+
+    setGameState((prevState: GameState) => ({
+      ...prevState,
+      enemyDeck: newEnemyDeck,
+      enemyHand: newEnemyHand,
+      battleground: newBattleground,
+      playerHealth: newPlayerHealth,
+      enemyEnergy: newEnemyEnergy,
+      playerTurn: true,
     }));
   };
 
@@ -118,6 +210,8 @@ export const GameStateProvider = ({ children }: { children: any }) => {
     playCard,
     startGame,
     cardCanBePlayed,
+    endTurn,
+    processEnemyTurn,
   };
 
   return (

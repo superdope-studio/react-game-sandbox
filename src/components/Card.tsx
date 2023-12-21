@@ -8,6 +8,9 @@ export const CardComponent = ({
   gameCard: GameCard;
   index: number;
 }) => {
+  if (!gameCard) {
+    return null;
+  }
   return (
     <Card
       sx={{

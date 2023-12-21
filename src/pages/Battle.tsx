@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Dialog } from "@mui/material";
 
 import { PlayerHand } from "../components/PlayerHand";
 import { Battleground } from "../components/Battleground";
@@ -30,6 +30,11 @@ export const Battle = () => {
       <Box sx={{ display: "flex", justifyContent: "center", flexGrow: 1 }}>
         <PlayerHand />
       </Box>
+      <Dialog open={false}>
+        <Box sx={{ padding: "16px" }}>
+          <Box>Enemy Played This Card!</Box>
+        </Box>
+      </Dialog>
     </Box>
   );
 };

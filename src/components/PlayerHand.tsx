@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useDrag } from "react-dnd";
 
 import { ItemTypes } from "../data/constants";
@@ -43,16 +43,24 @@ const DraggagleWrapper = ({
 };
 
 export const PlayerHand = () => {
-  const { gameState } = useGameState();
+  const { gameState, endTurn } = useGameState();
   const playerHand = gameState.playerHand;
   return (
     <Box sx={{ width: "100vw" }}>
       <Box sx={{ display: "flex", justifyContent: "space-around" }}>
         <Box>Energy: {gameState.playerEnergy}</Box>
         <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
+          {gameState.playerTurn && (
+            <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
+          )}
           Player Hand
         </Box>
         <Box>Health: {gameState.playerHealth}</Box>
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Button onClick={endTurn} variant="contained">
+          End Turn
+        </Button>
       </Box>
       <Box
         sx={{
