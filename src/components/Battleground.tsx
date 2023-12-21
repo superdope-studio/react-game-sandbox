@@ -5,9 +5,10 @@ import { Box } from "@mui/material";
 import { useGameState } from "../contexts/GameStateContext";
 import { GameCard } from "../data/cards";
 import { CardComponent } from "./Card";
+import { cardCanBePlayed } from "../gameEngine/gameEngine";
 
 export const Battleground = () => {
-  const { gameState, playCard, cardCanBePlayed } = useGameState();
+  const { gameState, playCard } = useGameState();
   const battleground = gameState.battleground;
 
   const [{ isOver, isValid }, drop] = useDrop(
