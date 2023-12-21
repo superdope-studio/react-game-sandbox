@@ -64,6 +64,8 @@ export const GameStateProvider = ({ children }: { children: any }) => {
       ...prevState,
       playerTurn: false,
     }));
+
+    processEnemyTurn();
   };
 
   /**
@@ -159,9 +161,48 @@ export const GameStateProvider = ({ children }: { children: any }) => {
 
   /**
    * figure out enemy AI here, resolve their cards
+   *
+   * This is a separate process now, but card events should
+   * have a target and a source associated with them to allow for a generic
+   * resolver function to work for both player and enemy cards
    */
+  const processEnemyTurn = () => {
+    let newEnemyDeck = [...gameState.enemyDeck];
+    let newEnemyHand = [...gameState.enemyHand];
 
-  const processEnemyTurn = () => {};
+    // for now, enemy just plays random card from hand
+    const enemyRandomIndex = Math.floor(Math.random() * newEnemyHand.length);
+
+    const [playedCard] = newEnemyHand.splice(enemyRandomIndex, 1);
+    const newBattleground = gameState.battleground.concat([playedCard]);
+
+    // process card effects, very simple logic for now
+    const newPlayerHealth = gameState.playerHealth - playedCard.damage;
+    const newEnemyEnergy = gameState.enemyEnergy - playedCard.energyCost;
+
+    // draw new card
+    const randomIndex = Math.floor(Math.random() * newEnemyDeck.length);
+    const randomCard = newEnemyDeck[randomIndex];
+
+    // remove drawn card from deck
+    newEnemyDeck.splice(randomIndex, 1);
+    newEnemyHand.push(randomCard);
+
+    // check for loss?!
+    if (newPlayerHealth <= 0) {
+      alert("you lose!");
+    }
+
+    setGameState((prevState: GameState) => ({
+      ...prevState,
+      enemyDeck: newEnemyDeck,
+      enemyHand: newEnemyHand,
+      battleground: newBattleground,
+      playerHealth: newPlayerHealth,
+      enemyEnergy: newEnemyEnergy,
+      playerTurn: true,
+    }));
+  };
 
   const value = {
     gameState,
