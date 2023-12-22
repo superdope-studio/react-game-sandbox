@@ -8,8 +8,8 @@ import { CardComponent } from "./Card";
 import { cardCanBePlayed } from "../gameEngine/gameEngine";
 
 export const Battleground = () => {
-  const { gameState, playCard } = useGameState();
-  const battleground = gameState.globalState.battleground;
+  const gameEngine = useGameState();
+  const battleground = gameEngine.getState().globalState.battleground;
 
   const [{ isOver, isValid }, drop] = useDrop(
     () => ({
@@ -17,7 +17,7 @@ export const Battleground = () => {
       drop: ({ index, gameCard }: { index: number; gameCard: GameCard }) => {
         // if the card is valid, allow drop action
         if (cardCanBePlayed(gameCard)) {
-          playCard(index);
+          // playCard(index);
         }
       },
       collect: (monitor) =>
@@ -29,7 +29,7 @@ export const Battleground = () => {
           monitor.getItem() && cardCanBePlayed(monitor.getItem()?.gameCard),
       }),
     }),
-    [gameState]
+    [gameEngine]
   );
 
   return (

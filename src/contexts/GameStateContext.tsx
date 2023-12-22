@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import * as GameEngine from "../gameEngine/gameEngine";
-import { GameState } from "../gameEngine/gameEngine";
+import { GameEngine as GameEngineClass } from "../gameEngine/GameEngineClass";
 
 /**
  * this context is responsible for syncronizing the game state from the gameEngine
@@ -8,63 +8,47 @@ import { GameState } from "../gameEngine/gameEngine";
  * this allows us to decouple the game state and the ui state
  */
 
-interface GameStateContextType {
-  gameState: GameState;
-  playCard: (cardIndex: number) => void;
-  startGame: () => void;
-  endTurn: () => void;
-  processEnemyTurn: () => void;
-}
+const gameEngine = new GameEngineClass();
+// TODO type this biatch
+const GameStateContext = createContext(gameEngine);
 
-const GameStateContext = createContext<GameStateContextType | undefined>(
-  undefined
-);
+export const GameStateProvider = ({
+  children
+}: { children: ReactNode }) => {
+  const gameEngine = new GameEngineClass()
+  const [gameState, setGameState] = useState(gameEngine.getState());
 
-interface GameStateProviderProps {
-  children: ReactNode;
-}
+  gameEngine.registerListener(setGameState as any);
 
-export const GameStateProvider: React.FC<GameStateProviderProps> = ({
-  children,
-}) => {
-  const [gameState, setGameState] = useState<GameState>(GameEngine.getState());
 
   const playCard = (cardIndex: number): void => {
-    GameEngine.playCard(cardIndex);
-    setGameState(GameEngine.getState());
+    //  gameEngine.playCard(cardIndex);
+    setGameState(gameEngine.getState());
   };
 
   const startGame = (): void => {
-    GameEngine.startGame();
-    setGameState(GameEngine.getState());
+    gameEngine.startGame();
+    setGameState(gameEngine.getState());
   };
 
   const endTurn = (): void => {
-    GameEngine.endPlayerTurn();
-    setGameState(GameEngine.getState());
+    //gameEngine.endPlayerTurn();
+    setGameState(gameEngine.getState());
   };
 
   const processEnemyTurn = (): void => {
-    GameEngine.processEnemyTurn();
-    setGameState(GameEngine.getState());
-  };
-
-  const value = {
-    gameState,
-    playCard,
-    startGame,
-    endTurn,
-    processEnemyTurn,
+    // gameEngine.processEnemyTurn();
+    setGameState(gameEngine.getState());
   };
 
   return (
-    <GameStateContext.Provider value={value}>
+    <GameStateContext.Provider value={{ gameState, playCard, startGame, endTurn, processEnemyTurn }}>
       {children}
     </GameStateContext.Provider>
   );
 };
 
-export const useGameState = (): GameStateContextType => {
+export const useGameState = () => {
   const context = useContext(GameStateContext);
   if (!context) {
     throw new Error("useGameState must be used within a GameStateProvider");

@@ -7,9 +7,9 @@ import { useGameState } from "../contexts/GameStateContext";
 import { EnemyArea } from "../components/EnemyArea";
 
 export const Battle = () => {
-  const { startGame } = useGameState();
+  const gameEngine = useGameState();
   useEffect(() => {
-    startGame();
+    gameEngine.startGame();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

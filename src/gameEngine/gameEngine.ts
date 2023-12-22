@@ -307,3 +307,24 @@ export const cardCanBePlayed = (card: GameCard) => {
 export const getState = (): GameState => {
   return state;
 };
+
+
+// TODO - add logic for resolving various card effects here
+export const resolveCard = (card: GameCard, source: PlayerState, target: PlayerState): { source: PlayerState, target: PlayerState } => {
+  let localSource = { ...source };
+  let localTarget = { ...target };
+  if (card.energyCost >= source.energy) {
+    // source doesn't have enough energy to play card
+    return { source: localSource, target: localTarget };
+  }
+
+  if (card.damage && card.damage > 0) {
+    localSource.energy = localSource.energy - card.energyCost
+    localTarget.health = localTarget.health - card.damage
+  }
+
+  return { source: localSource, target: localTarget }
+
+  // add other things to process cards with effects
+
+}

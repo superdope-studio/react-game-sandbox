@@ -3,7 +3,7 @@ import { Box, Button } from "@mui/material";
 import { useDrag } from "react-dnd";
 
 import { ItemTypes } from "../data/constants";
-import { useGameState } from "../contexts/GameStateContext";
+import { GameStateProvider, useGameState } from "../contexts/GameStateContext";
 import { GameCard } from "../data/cards";
 import { CardComponent } from "./Card";
 
@@ -43,22 +43,23 @@ const DraggagleWrapper = ({
 };
 
 export const PlayerHand = () => {
-  const { gameState, endTurn } = useGameState();
-  const playerHand = gameState.humanState.hand;
+  const gameEngine = useGameState();
+  const player = gameEngine.getHuman();
+  const state = gameEngine.getState();
   return (
     <Box sx={{ width: "100vw" }}>
       <Box sx={{ display: "flex", justifyContent: "space-around" }}>
-        <Box>Energy: {gameState.humanState.energy}</Box>
+        <Box>Energy: {player.energy}</Box>
         <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
-          {gameState.globalState.currentTurn === "Human" && (
+          {state.globalState.currentTurn === "Human" && (
             <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
           )}
           Player Hand
         </Box>
-        <Box>Health: {gameState.humanState.health}</Box>
+        <Box>Health: {player.health}</Box>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Button onClick={endTurn} variant="contained">
+        <Button onClick={gameEngine.passTurn} variant="contained">
           End Turn
         </Button>
       </Box>
@@ -66,11 +67,12 @@ export const PlayerHand = () => {
         sx={{
           display: "flex",
           flexDirection: "row",
-          maxHeight: "33vh",
+          // maxHeight: "33vh",
+          padding: "16px",
           overflow: "scroll",
         }}
       >
-        {playerHand.map((card: GameCard, idx) => (
+        {player.hand.map((card: GameCard, idx) => (
           <DraggagleWrapper key={idx} index={idx} gameCard={card}>
             <CardComponent gameCard={card} index={idx} />
           </DraggagleWrapper>
