@@ -2,6 +2,24 @@ import { GameCard, enemyDeck, playerDeck } from "../data/cards";
 import { shuffleDeck, drawCards } from "./helpers";
 
 
+
+/**
+ * GAME RULES (so far)
+ * 
+ * Each turn has 3 phases
+ * 
+ * Start Phase: Your energy pool is set to the number of turns you have had so far.
+ * You draw one card at the start of each turn.
+ * So in effect, you get 1 energy per turn, and your pool is refilled at the start of each turn
+ * 
+ * 
+ * Main Phase: Play cards and spend energy
+ * 
+ * 
+ * End Phase: Nothing yet
+ */
+
+
 // TODO - add state for active effects from cards to both
 // players and global state
 
@@ -181,6 +199,7 @@ export const playCard = (cardIndex: number): void => {
     newPlayerHand.push(drawnCards[0]);
   }
 
+  // TODO - make a better way to assign changes to state object
   state = {
     ...state,
     humanState: {
@@ -197,7 +216,6 @@ export const playCard = (cardIndex: number): void => {
       ...state.globalState,
       battleground: newBattleground
     }
-
   };
 
   if (state.aiState.health <= 0) {
@@ -226,6 +244,8 @@ export const processEnemyTurn = (): void => {
   const enemyRandomIndex = Math.floor(Math.random() * validCardsInHand.length);
   const playedCard = validCardsInHand[enemyRandomIndex];
 
+  const newEnemyHand = state.aiState.hand.filter((card) => card.title !== playedCard.title)
+
   if (!playedCard) {
     //no valid cards, end turn
     startPhase("Human");
@@ -234,10 +254,6 @@ export const processEnemyTurn = (): void => {
 
   const newPlayerHealth = state.humanState.health - playedCard.damage;
   const newEnemyEnergy = state.aiState.energy - playedCard.energyCost;
-
-  const newEnemyHand = state.aiState.hand.filter(
-    (_, index) => index !== enemyRandomIndex
-  );
 
   const newBattleground = [...state.globalState.battleground, playedCard];
 
