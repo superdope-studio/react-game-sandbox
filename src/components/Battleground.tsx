@@ -9,7 +9,7 @@ import { cardCanBePlayed } from "../gameEngine/gameEngine";
 
 export const Battleground = () => {
   const { gameState, playCard } = useGameState();
-  const battleground = gameState.battleground;
+  const battleground = gameState.globalState.battleground;
 
   const [{ isOver, isValid }, drop] = useDrop(
     () => ({
@@ -21,13 +21,13 @@ export const Battleground = () => {
         }
       },
       collect: (monitor) =>
-        // collector runs while dragging is happening
-        // use to change the UI while dragging
-        ({
-          isOver: !!monitor.isOver(),
-          isValid:
-            monitor.getItem() && cardCanBePlayed(monitor.getItem()?.gameCard),
-        }),
+      // collector runs while dragging is happening
+      // use to change the UI while dragging
+      ({
+        isOver: !!monitor.isOver(),
+        isValid:
+          monitor.getItem() && cardCanBePlayed(monitor.getItem()?.gameCard),
+      }),
     }),
     [gameState]
   );
@@ -42,7 +42,7 @@ export const Battleground = () => {
       }}
     >
       <Box textAlign="center">
-        Battleground ({gameState.battleground.length} cards)
+        Battleground ({battleground.length} cards)
       </Box>
       <Box
         sx={{

@@ -44,18 +44,18 @@ const DraggagleWrapper = ({
 
 export const PlayerHand = () => {
   const { gameState, endTurn } = useGameState();
-  const playerHand = gameState.playerHand;
+  const playerHand = gameState.humanState.hand;
   return (
     <Box sx={{ width: "100vw" }}>
       <Box sx={{ display: "flex", justifyContent: "space-around" }}>
-        <Box>Energy: {gameState.playerEnergy}</Box>
+        <Box>Energy: {gameState.humanState.energy}</Box>
         <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
-          {gameState.playerTurn && (
+          {gameState.globalState.currentTurn === "Human" && (
             <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
           )}
           Player Hand
         </Box>
-        <Box>Health: {gameState.playerHealth}</Box>
+        <Box>Health: {gameState.humanState.health}</Box>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Button onClick={endTurn} variant="contained">

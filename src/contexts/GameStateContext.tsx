@@ -40,7 +40,7 @@ export const GameStateProvider: React.FC<GameStateProviderProps> = ({
   };
 
   const endTurn = (): void => {
-    GameEngine.endTurn();
+    GameEngine.endPlayerTurn();
     setGameState(GameEngine.getState());
   };
 

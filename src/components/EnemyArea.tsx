@@ -20,14 +20,14 @@ export const EnemyArea = () => {
       <Box
         sx={{ display: "flex", justifyContent: "space-around", width: "100vw" }}
       >
-        <Box>Energy: {gameState.enemyEnergy}</Box>
+        <Box>Energy: {gameState.aiState.energy}</Box>
         <Box>
-          {!gameState.playerTurn && (
+          {gameState.globalState.currentTurn === "AI" && (
             <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
           )}
           Enemy Area
         </Box>
-        <Box>Health: {gameState.enemyHealth}</Box>
+        <Box>Health: {gameState.aiState.health}</Box>
       </Box>
       <Box
         sx={{
@@ -37,7 +37,7 @@ export const EnemyArea = () => {
           overflow: "scroll",
         }}
       >
-        {gameState.enemyHand.map((card: GameCard, idx) => (
+        {gameState.aiState.hand.map((card: GameCard, idx) => (
           <Box key={idx}>
             <CardBack />
           </Box>

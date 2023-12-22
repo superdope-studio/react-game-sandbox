@@ -1,36 +1,62 @@
 import { GameCard, enemyDeck, playerDeck } from "../data/cards";
 import { shuffleDeck, drawCards } from "./helpers";
 
-export type GameState = {
-  playerHealth: number;
-  playerEnergy: number;
-  enemyHealth: number;
-  enemyEnergy: number;
-  playerTurn: boolean;
-  playerHand: GameCard[];
-  playerDeck: GameCard[];
-  enemyHand: GameCard[];
-  enemyDeck: GameCard[];
+
+// TODO - add state for active effects from cards to both
+// players and global state
+
+export type PlayerState = {
+  health: number;
+  energy: number;
+  deck: GameCard[];
+  hand: GameCard[];
+  discardPile: GameCard[];
+  turnCount: number;
+};
+
+export type GlobalState = {
+  currentTurn: "Human" | "AI";
   battleground: GameCard[];
+  turnPhase: "Start" | "Main" | "End"
+};
+
+export type GameState = {
+  humanState: PlayerState;
+  aiState: PlayerState;
+  globalState: GlobalState;
 };
 
 const initialState: GameState = {
-  playerHealth: 10,
-  playerEnergy: 10,
-  enemyHealth: 10,
-  enemyEnergy: 10,
-  playerTurn: true,
-  playerHand: [],
-  playerDeck,
-  enemyDeck,
-  enemyHand: [],
-  battleground: [],
+  humanState: {
+    health: 10,
+    energy: 0,
+    deck: [],
+    hand: [],
+    discardPile: [],
+    turnCount: 0,
+  },
+  aiState: {
+    health: 10,
+    energy: 0,
+    deck: [],
+    hand: [],
+    discardPile: [],
+    turnCount: 0,
+  },
+  globalState: {
+    currentTurn: "Human",
+    battleground: [],
+    turnPhase: "Start"
+  }
 };
 
 let state: GameState = {
   ...initialState,
 };
 
+/**
+ * Set up initial game state, shuffle decks, draw cards
+ */
 export const startGame = (): void => {
   const startingCards = 3;
 
@@ -48,34 +74,106 @@ export const startGame = (): void => {
 
   state = {
     ...initialState,
-    playerDeck: newPlayerDeck,
-    playerHand: newPlayerHand,
-    enemyDeck: newEnemyDeck,
-    enemyHand: newEnemyHand,
+    humanState: {
+      ...initialState.humanState,
+      deck: newPlayerDeck,
+      hand: newPlayerHand,
+    },
+    aiState: {
+      ...initialState.aiState,
+      deck: newEnemyDeck,
+      hand: newEnemyHand
+    },
   };
+
+  startPhase("Human");
 };
 
+/**
+ * Start turn: set turn phase, set active player, draw 1 card, update energy, increment turn count
+ */
+export const startPhase = (player: "Human" | "AI") => {
+  state = {
+    ...state,
+    globalState: {
+      ...state.globalState,
+      turnPhase: "Start",
+      currentTurn: player
+    }
+  }
+
+  if (player === "Human") {
+    const { remainingDeck: newPlayerDeck, drawnCards } = drawCards(
+      state.humanState.deck,
+      1
+    );
+
+    const turnCount = state.humanState.turnCount;
+
+    state = {
+      ...state,
+      humanState: {
+        ...state.humanState,
+        hand: state.humanState.hand.concat(drawnCards),
+        deck: newPlayerDeck,
+        turnCount: turnCount + 1,
+        energy: turnCount + 1,
+      }
+    }
+  }
+
+  if (player === "AI") {
+    const { remainingDeck: newEnemyDeck, drawnCards } = drawCards(
+      state.aiState.deck,
+      1
+    );
+
+    const turnCount = state.aiState.turnCount;
+    state = {
+      ...state,
+      aiState: {
+        ...state.aiState,
+        hand: state.aiState.hand.concat(drawnCards),
+        deck: newEnemyDeck,
+        turnCount: turnCount + 1,
+        energy: turnCount + 1
+      }
+    }
+  }
+}
+
+// Process main phase effects, wait for players to play cards and end their turn
+export const mainPhase = () => {
+  state = {
+    ...state,
+    globalState: {
+      ...state.globalState,
+      turnPhase: "Main",
+    }
+  }
+}
+
 export const playCard = (cardIndex: number): void => {
-  if (cardIndex < 0 || cardIndex >= state.playerHand.length) {
+  if (cardIndex < 0 || cardIndex >= state.humanState.hand.length) {
     return;
   }
 
-  const card = state.playerHand[cardIndex];
+  const card = state.humanState.hand[cardIndex];
   if (!card) {
     return;
   }
 
-  const newPlayerHand = state.playerHand.filter(
+  const newPlayerHand = state.humanState.hand.filter(
     (_, index) => index !== cardIndex
   );
 
-  const newBattleground = [...state.battleground, card];
+  const newBattleground = [...state.globalState.battleground, card];
 
-  const newEnemyHealth = state.enemyHealth - card.damage;
-  const newPlayerEnergy = state.playerEnergy - card.energyCost;
+  const newEnemyHealth = state.aiState.health - card.damage;
+  const newPlayerEnergy = state.humanState.energy - card.energyCost;
 
   const { remainingDeck: newPlayerDeck, drawnCards } = drawCards(
-    state.playerDeck,
+    state.humanState.deck,
     1
   );
 
@@ -85,42 +183,66 @@ export const playCard = (cardIndex: number): void => {
 
   state = {
     ...state,
-    playerDeck: newPlayerDeck,
-    playerHand: newPlayerHand,
-    battleground: newBattleground,
-    enemyHealth: newEnemyHealth,
-    playerEnergy: newPlayerEnergy,
+    humanState: {
+      ...state.humanState,
+      deck: newPlayerDeck,
+      hand: newPlayerHand,
+      energy: newPlayerEnergy
+    },
+    aiState: {
+      ...state.aiState,
+      health: newEnemyHealth
+    },
+    globalState: {
+      ...state.globalState,
+      battleground: newBattleground
+    }
+
   };
 
-  if (state.enemyHealth <= 0) {
+  if (state.aiState.health <= 0) {
     alert("you win!");
   }
 };
 
-export const endTurn = (): void => {
-  state = { ...state, playerTurn: false };
+export const endPlayerTurn = (): void => {
+  state = {
+    ...state, globalState: {
+      ...state.globalState, currentTurn: "AI"
+    }
+  };
+  startPhase("AI")
   processEnemyTurn();
 };
 
 export const processEnemyTurn = (): void => {
-  if (state.enemyHand.length === 0) {
+  if (state.aiState.hand.length === 0) {
     return;
   }
 
-  const enemyRandomIndex = Math.floor(Math.random() * state.enemyHand.length);
-  const playedCard = state.enemyHand[enemyRandomIndex];
+  // filter out cards that are too expensive to be played
+  const validCardsInHand = state.aiState.hand.filter((card) => card.energyCost <= state.aiState.energy)
 
-  const newPlayerHealth = state.playerHealth - playedCard.damage;
-  const newEnemyEnergy = state.enemyEnergy - playedCard.energyCost;
+  const enemyRandomIndex = Math.floor(Math.random() * validCardsInHand.length);
+  const playedCard = validCardsInHand[enemyRandomIndex];
 
-  const newEnemyHand = state.enemyHand.filter(
+  if (!playedCard) {
+    //no valid cards, end turn
+    startPhase("Human");
+    return;
+  }
+
+  const newPlayerHealth = state.humanState.health - playedCard.damage;
+  const newEnemyEnergy = state.aiState.energy - playedCard.energyCost;
+
+  const newEnemyHand = state.aiState.hand.filter(
     (_, index) => index !== enemyRandomIndex
   );
 
-  const newBattleground = [...state.battleground, playedCard];
+  const newBattleground = [...state.globalState.battleground, playedCard];
 
   const { remainingDeck: newEnemyDeck, drawnCards } = drawCards(
-    state.enemyDeck,
+    state.aiState.deck,
     1
   );
 
@@ -130,25 +252,36 @@ export const processEnemyTurn = (): void => {
 
   state = {
     ...state,
-    enemyDeck: newEnemyDeck,
-    enemyHand: newEnemyHand,
-    battleground: newBattleground,
-    playerHealth: newPlayerHealth,
-    enemyEnergy: newEnemyEnergy,
-    playerTurn: true,
+    aiState: {
+      ...state.aiState,
+      deck: newEnemyDeck,
+      hand: newEnemyHand,
+      energy: newEnemyEnergy
+    },
+    humanState: {
+      ...state.humanState,
+      health: newPlayerHealth
+    },
+    globalState: {
+      ...state.globalState,
+      battleground: newBattleground,
+      currentTurn: "Human"
+    }
   };
 
-  if (state.playerHealth <= 0) {
+  if (state.humanState.health <= 0) {
     alert("you lose!");
   }
+
+  startPhase("Human")
 };
 
 export const cardCanBePlayed = (card: GameCard) => {
-  if (!state.playerTurn) {
+  if (state.globalState.currentTurn === "AI") {
     return false;
   }
 
-  if (state.playerEnergy < card.energyCost) {
+  if (state.humanState.energy < card.energyCost) {
     return false;
   }
 
