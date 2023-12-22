@@ -50,7 +50,7 @@ export const PlayerHand = () => {
       <Box sx={{ display: "flex", justifyContent: "space-around" }}>
         <Box>Energy: {gameState.humanState.energy}</Box>
         <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
-          {gameState.globalState.currentTurn === "Player" && (
+          {gameState.globalState.currentTurn === "Human" && (
             <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
           )}
           Player Hand

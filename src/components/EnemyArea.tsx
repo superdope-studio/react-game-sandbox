@@ -22,7 +22,7 @@ export const EnemyArea = () => {
       >
         <Box>Energy: {gameState.aiState.energy}</Box>
         <Box>
-          {gameState.globalState.currentTurn === "Opponent" && (
+          {gameState.globalState.currentTurn === "AI" && (
             <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
           )}
           Enemy Area
