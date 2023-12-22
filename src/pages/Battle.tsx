@@ -12,6 +12,7 @@ export const Battle = () => {
     startGame();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <Box
       sx={{

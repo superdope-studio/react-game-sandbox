@@ -1,30 +1,50 @@
 import { GameCard, enemyDeck, playerDeck } from "../data/cards";
 import { shuffleDeck, drawCards } from "./helpers";
 
-export type GameState = {
-  playerHealth: number;
-  playerEnergy: number;
-  enemyHealth: number;
-  enemyEnergy: number;
-  playerTurn: boolean;
-  playerHand: GameCard[];
-  playerDeck: GameCard[];
-  enemyHand: GameCard[];
-  enemyDeck: GameCard[];
+
+// TODO - add state for active effects from cards to both
+// players and global state
+
+export type PlayerState = {
+  health: number;
+  energy: number;
+  deck: GameCard[];
+  hand: GameCard[];
+  discardPile: GameCard[];
+};
+
+export type GlobalState = {
+  currentTurn: "Player" | "Opponent";
+  turnCount: number;
   battleground: GameCard[];
 };
 
+export type GameState = {
+  humanState: PlayerState,
+  aiState: PlayerState,
+  globalState: GlobalState,
+};
+
 const initialState: GameState = {
-  playerHealth: 10,
-  playerEnergy: 10,
-  enemyHealth: 10,
-  enemyEnergy: 10,
-  playerTurn: true,
-  playerHand: [],
-  playerDeck,
-  enemyDeck,
-  enemyHand: [],
-  battleground: [],
+  humanState: {
+    health: 10,
+    energy: 10,
+    deck: [],
+    hand: [],
+    discardPile: []
+  },
+  aiState: {
+    health: 10,
+    energy: 10,
+    deck: [],
+    hand: [],
+    discardPile: []
+  },
+  globalState: {
+    currentTurn: "Player",
+    turnCount: 0,
+    battleground: []
+  }
 };
 
 let state: GameState = {
@@ -48,34 +68,41 @@ export const startGame = (): void => {
 
   state = {
     ...initialState,
-    playerDeck: newPlayerDeck,
-    playerHand: newPlayerHand,
-    enemyDeck: newEnemyDeck,
-    enemyHand: newEnemyHand,
+    humanState: {
+      ...initialState.humanState,
+      deck: newPlayerDeck,
+      hand: newPlayerHand,
+    },
+    aiState: {
+      ...initialState.aiState,
+      deck: newEnemyDeck,
+      hand: newEnemyHand
+    }
+
   };
 };
 
 export const playCard = (cardIndex: number): void => {
-  if (cardIndex < 0 || cardIndex >= state.playerHand.length) {
+  if (cardIndex < 0 || cardIndex >= state.humanState.hand.length) {
     return;
   }
 
-  const card = state.playerHand[cardIndex];
+  const card = state.humanState.hand[cardIndex];
   if (!card) {
     return;
   }
 
-  const newPlayerHand = state.playerHand.filter(
+  const newPlayerHand = state.humanState.hand.filter(
     (_, index) => index !== cardIndex
   );
 
-  const newBattleground = [...state.battleground, card];
+  const newBattleground = [...state.globalState.battleground, card];
 
-  const newEnemyHealth = state.enemyHealth - card.damage;
-  const newPlayerEnergy = state.playerEnergy - card.energyCost;
+  const newEnemyHealth = state.aiState.health - card.damage;
+  const newPlayerEnergy = state.humanState.energy - card.energyCost;
 
   const { remainingDeck: newPlayerDeck, drawnCards } = drawCards(
-    state.playerDeck,
+    state.humanState.deck,
     1
   );
 
@@ -83,44 +110,60 @@ export const playCard = (cardIndex: number): void => {
     newPlayerHand.push(drawnCards[0]);
   }
 
+  // TODO - make a better way to assign changes to state object
   state = {
     ...state,
-    playerDeck: newPlayerDeck,
-    playerHand: newPlayerHand,
-    battleground: newBattleground,
-    enemyHealth: newEnemyHealth,
-    playerEnergy: newPlayerEnergy,
+    humanState: {
+      ...state.humanState,
+      deck: newPlayerDeck,
+      hand: newPlayerHand,
+      energy: newPlayerEnergy
+    },
+    aiState: {
+      ...state.aiState,
+      health: newEnemyHealth
+    },
+    globalState: {
+      ...state.globalState,
+      battleground: newBattleground
+    }
   };
 
-  if (state.enemyHealth <= 0) {
+  if (state.aiState.health <= 0) {
     alert("you win!");
   }
 };
 
-export const endTurn = (): void => {
-  state = { ...state, playerTurn: false };
+export const endPlayerTurn = (): void => {
+  state = {
+    ...state, globalState: {
+      ...state.globalState, currentTurn: "Opponent"
+    }
+  };
   processEnemyTurn();
 };
 
 export const processEnemyTurn = (): void => {
-  if (state.enemyHand.length === 0) {
+  if (state.aiState.hand.length === 0) {
     return;
   }
 
-  const enemyRandomIndex = Math.floor(Math.random() * state.enemyHand.length);
-  const playedCard = state.enemyHand[enemyRandomIndex];
+  const enemyRandomIndex = Math.floor(Math.random() * state.aiState.hand.length);
+  const playedCard = state.aiState.hand[enemyRandomIndex];
 
-  const newPlayerHealth = state.playerHealth - playedCard.damage;
-  const newEnemyEnergy = state.enemyEnergy - playedCard.energyCost;
+  const newPlayerHealth = state.humanState.health - playedCard.damage;
 
-  const newEnemyHand = state.enemyHand.filter(
+  // TODO - don't let enemies play cards they can't pay for, no credit card debt allowed
+  const newEnemyEnergy = state.aiState.energy - playedCard.energyCost;
+
+  const newEnemyHand = state.aiState.hand.filter(
     (_, index) => index !== enemyRandomIndex
   );
 
-  const newBattleground = [...state.battleground, playedCard];
+  const newBattleground = [...state.globalState.battleground, playedCard];
 
   const { remainingDeck: newEnemyDeck, drawnCards } = drawCards(
-    state.enemyDeck,
+    state.aiState.deck,
     1
   );
 
@@ -130,25 +173,34 @@ export const processEnemyTurn = (): void => {
 
   state = {
     ...state,
-    enemyDeck: newEnemyDeck,
-    enemyHand: newEnemyHand,
-    battleground: newBattleground,
-    playerHealth: newPlayerHealth,
-    enemyEnergy: newEnemyEnergy,
-    playerTurn: true,
+    aiState: {
+      ...state.aiState,
+      deck: newEnemyDeck,
+      hand: newEnemyHand,
+      energy: newEnemyEnergy
+    },
+    humanState: {
+      ...state.humanState,
+      health: newPlayerHealth
+    },
+    globalState: {
+      ...state.globalState,
+      battleground: newBattleground,
+      currentTurn: "Player"
+    }
   };
 
-  if (state.playerHealth <= 0) {
+  if (state.humanState.health <= 0) {
     alert("you lose!");
   }
 };
 
 export const cardCanBePlayed = (card: GameCard) => {
-  if (!state.playerTurn) {
+  if (state.globalState.currentTurn === "Opponent") {
     return false;
   }
 
-  if (state.playerEnergy < card.energyCost) {
+  if (state.humanState.energy < card.energyCost) {
     return false;
   }
 
