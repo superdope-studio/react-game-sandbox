@@ -3,7 +3,7 @@ import { Box, Button } from "@mui/material";
 import { useDrag } from "react-dnd";
 
 import { ItemTypes } from "../data/constants";
-import { GameStateProvider, useGameState } from "../contexts/GameStateContext";
+import { useGameState } from "../contexts/GameStateContext";
 import { GameCard } from "../data/cards";
 import { CardComponent } from "./Card";
 
@@ -43,7 +43,7 @@ const DraggagleWrapper = ({
 };
 
 export const PlayerHand = () => {
-  const gameEngine = useGameState();
+  const { gameEngine } = useGameState();
   const player = gameEngine.getHuman();
   const state = gameEngine.getState();
   return (
@@ -51,7 +51,7 @@ export const PlayerHand = () => {
       <Box sx={{ display: "flex", justifyContent: "space-around" }}>
         <Box>Energy: {player.energy}</Box>
         <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
-          {state.globalState.currentTurn === "Human" && (
+          {state.globalState.activePlayer.type === "Human" && (
             <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
           )}
           Player Hand
@@ -59,7 +59,12 @@ export const PlayerHand = () => {
         <Box>Health: {player.health}</Box>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Button onClick={gameEngine.passTurn} variant="contained">
+        <Button
+          onClick={() => {
+            gameEngine.advanceTurnPhase();
+          }}
+          variant="contained"
+        >
           End Turn
         </Button>
       </Box>

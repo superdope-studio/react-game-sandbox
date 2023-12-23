@@ -1,6 +1,15 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import * as GameEngine from "../gameEngine/gameEngine";
-import { GameEngine as GameEngineClass } from "../gameEngine/GameEngineClass";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import {
+  GameEngine,
+  GameEngine as GameEngineClass,
+  GameState,
+} from "../gameEngine/GameEngineClass";
 
 /**
  * this context is responsible for syncronizing the game state from the gameEngine
@@ -9,40 +18,26 @@ import { GameEngine as GameEngineClass } from "../gameEngine/GameEngineClass";
  */
 
 const gameEngine = new GameEngineClass();
-// TODO type this biatch
-const GameStateContext = createContext(gameEngine);
 
-export const GameStateProvider = ({
-  children
-}: { children: ReactNode }) => {
-  const gameEngine = new GameEngineClass()
+const GameStateContext = createContext<{
+  gameEngine: GameEngine;
+  gameState?: GameState;
+}>({
+  gameEngine,
+  gameState: undefined,
+});
+
+export const GameStateProvider = ({ children }: { children: ReactNode }) => {
   const [gameState, setGameState] = useState(gameEngine.getState());
 
-  gameEngine.registerListener(setGameState as any);
-
-
-  const playCard = (cardIndex: number): void => {
-    //  gameEngine.playCard(cardIndex);
-    setGameState(gameEngine.getState());
-  };
-
-  const startGame = (): void => {
-    gameEngine.startGame();
-    setGameState(gameEngine.getState());
-  };
-
-  const endTurn = (): void => {
-    //gameEngine.endPlayerTurn();
-    setGameState(gameEngine.getState());
-  };
-
-  const processEnemyTurn = (): void => {
-    // gameEngine.processEnemyTurn();
-    setGameState(gameEngine.getState());
-  };
+  useEffect(() => {
+    gameEngine.registerListener((state: GameState) => {
+      setGameState(state);
+    });
+  }, []);
 
   return (
-    <GameStateContext.Provider value={{ gameState, playCard, startGame, endTurn, processEnemyTurn }}>
+    <GameStateContext.Provider value={{ gameEngine, gameState }}>
       {children}
     </GameStateContext.Provider>
   );

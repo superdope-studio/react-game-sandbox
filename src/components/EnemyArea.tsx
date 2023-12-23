@@ -13,7 +13,7 @@ const CardBack = () => {
 };
 
 export const EnemyArea = () => {
-  const gameEngine = useGameState();
+  const { gameEngine } = useGameState();
   const enemy = gameEngine.getAi();
   const state = gameEngine.getState();
 
@@ -24,7 +24,7 @@ export const EnemyArea = () => {
       >
         <Box>Energy: {enemy.energy}</Box>
         <Box>
-          {state.globalState.currentTurn === "AI" && (
+          {state.globalState.activePlayer.type === "AI" && (
             <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
           )}
           Enemy Area
