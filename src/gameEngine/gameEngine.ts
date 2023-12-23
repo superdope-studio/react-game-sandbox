@@ -86,8 +86,10 @@ export class GameEngine {
         this.advanceTurnPhase();
         break;
       case "End":
+        this.activePlayer.incrementTimedEffects();
         this.passTurn();
         this.checkForGameOver();
+        console.log(this);
         break;
       default:
         break;
@@ -115,8 +117,8 @@ export class GameEngine {
 
   getState(): GameState {
     return {
-      humanState: this.human,
-      aiState: this.ai,
+      humanState: this.human.getState(),
+      aiState: this.ai.getState(),
       globalState: {
         battleground: this.battleground,
         activePlayer: this.activePlayer,

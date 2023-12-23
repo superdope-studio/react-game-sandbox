@@ -46,6 +46,11 @@ export const PlayerHand = () => {
   const { gameEngine } = useGameState();
   const player = gameEngine.getHuman();
   const state = gameEngine.getState();
+  const activeEffects = player.getActiveEffects();
+  const shieldeffects = activeEffects?.filter(
+    (effect) => effect?.type === "Shield"
+  );
+
   return (
     <Box sx={{ width: "100vw" }}>
       <Box sx={{ display: "flex", justifyContent: "space-around" }}>
@@ -57,6 +62,9 @@ export const PlayerHand = () => {
           Player Hand
         </Box>
         <Box>Health: {player.health}</Box>
+        {shieldeffects && shieldeffects.length > 0 && (
+          <Box>(Shield Active)</Box>
+        )}
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Button
