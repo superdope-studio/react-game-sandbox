@@ -25,15 +25,15 @@ export class Player {
   }
 
   incrementTurnCount() {
-    this.turnCount += 1;
+    this.turnCount++;
   }
 
   getTurnCount() {
     return this.turnCount;
   }
 
-  addEnergy(quantity: number) {
-    this.energy = this.energy + quantity;
+  setEnergy(quantity: number) {
+    this.energy = quantity;
   }
 
   takeDamage(damage: number): void {

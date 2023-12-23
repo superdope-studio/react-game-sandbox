@@ -5,11 +5,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import {
-  GameEngine,
-  GameEngine as GameEngineClass,
-  GameState,
-} from "../gameEngine/GameEngineClass";
+import { GameEngine, GameState } from "../gameEngine/GameEngine";
 
 /**
  * this context is responsible for syncronizing the game state from the gameEngine
@@ -17,7 +13,7 @@ import {
  * this allows us to decouple the game state and the ui state
  */
 
-const gameEngine = new GameEngineClass();
+const gameEngine = new GameEngine();
 
 const GameStateContext = createContext<{
   gameEngine: GameEngine;
@@ -30,6 +26,12 @@ const GameStateContext = createContext<{
 export const GameStateProvider = ({ children }: { children: ReactNode }) => {
   const [gameState, setGameState] = useState(gameEngine.getState());
 
+  // Game state is tracked in the GameEngine class
+  // in order to update the state stored in this context (UI state)
+  // we register a listener in the GameEngine class
+  // this listener is fired after every GameEngine state update
+  // and pushes state updates into the context, which cascades rerenders
+  // down the component tree to update the entire UI
   useEffect(() => {
     gameEngine.registerListener((state: GameState) => {
       setGameState(state);
