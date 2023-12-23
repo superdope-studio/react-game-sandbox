@@ -5,31 +5,34 @@ import { Box } from "@mui/material";
 import { useGameState } from "../contexts/GameStateContext";
 import { GameCard } from "../data/cards";
 import { CardComponent } from "./Card";
-import { cardCanBePlayed } from "../gameEngine/gameEngine";
 
 export const Battleground = () => {
-  const { gameState, playCard } = useGameState();
-  const battleground = gameState.globalState.battleground;
+  const { gameEngine } = useGameState();
+  const battleground = gameEngine.getState().globalState.battleground;
 
   const [{ isOver, isValid }, drop] = useDrop(
     () => ({
       accept: ItemTypes.CARD,
       drop: ({ index, gameCard }: { index: number; gameCard: GameCard }) => {
-        // if the card is valid, allow drop action
-        if (cardCanBePlayed(gameCard)) {
-          playCard(index);
+        if (gameEngine.validateCardPlay(gameCard)) {
+          gameEngine.resolveCardPlay(
+            gameCard,
+            gameEngine.getHuman(),
+            gameEngine.getAi()
+          );
         }
       },
       collect: (monitor) =>
-      // collector runs while dragging is happening
-      // use to change the UI while dragging
-      ({
-        isOver: !!monitor.isOver(),
-        isValid:
-          monitor.getItem() && cardCanBePlayed(monitor.getItem()?.gameCard),
-      }),
+        // collector runs while dragging is happening
+        // use to change the UI while dragging
+        ({
+          isOver: !!monitor.isOver(),
+          isValid:
+            monitor.getItem() &&
+            gameEngine.validateCardPlay(monitor.getItem()?.gameCard),
+        }),
     }),
-    [gameState]
+    [gameEngine]
   );
 
   return (
@@ -41,9 +44,7 @@ export const Battleground = () => {
         height: "100%",
       }}
     >
-      <Box textAlign="center">
-        Battleground ({battleground.length} cards)
-      </Box>
+      <Box textAlign="center">Battleground ({battleground.length} cards)</Box>
       <Box
         sx={{
           display: "flex",

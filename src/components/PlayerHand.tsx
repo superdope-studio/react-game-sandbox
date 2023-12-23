@@ -43,22 +43,36 @@ const DraggagleWrapper = ({
 };
 
 export const PlayerHand = () => {
-  const { gameState, endTurn } = useGameState();
-  const playerHand = gameState.humanState.hand;
+  const { gameEngine } = useGameState();
+  const player = gameEngine.getHuman();
+  const state = gameEngine.getState();
+  const activeEffects = player.getActiveEffects();
+  const shieldeffects = activeEffects?.filter(
+    (effect) => effect?.type === "Shield"
+  );
+
   return (
     <Box sx={{ width: "100vw" }}>
       <Box sx={{ display: "flex", justifyContent: "space-around" }}>
-        <Box>Energy: {gameState.humanState.energy}</Box>
+        <Box>Energy: {player.energy}</Box>
         <Box sx={{ textAlign: "center", marginBottom: "16px" }}>
-          {gameState.globalState.currentTurn === "Human" && (
+          {state.globalState.activePlayer.type === "Human" && (
             <Box sx={{ fontWeight: 600 }}>Current Turn</Box>
           )}
           Player Hand
         </Box>
-        <Box>Health: {gameState.humanState.health}</Box>
+        <Box>Health: {player.health}</Box>
+        {shieldeffects && shieldeffects.length > 0 && (
+          <Box>(Shield Active)</Box>
+        )}
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Button onClick={endTurn} variant="contained">
+        <Button
+          onClick={() => {
+            gameEngine.advanceTurnPhase();
+          }}
+          variant="contained"
+        >
           End Turn
         </Button>
       </Box>
@@ -66,11 +80,12 @@ export const PlayerHand = () => {
         sx={{
           display: "flex",
           flexDirection: "row",
-          maxHeight: "33vh",
+          // maxHeight: "33vh",
+          padding: "16px",
           overflow: "scroll",
         }}
       >
-        {playerHand.map((card: GameCard, idx) => (
+        {player.hand.map((card: GameCard, idx) => (
           <DraggagleWrapper key={idx} index={idx} gameCard={card}>
             <CardComponent gameCard={card} index={idx} />
           </DraggagleWrapper>

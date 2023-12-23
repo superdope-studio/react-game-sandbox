@@ -1,6 +1,11 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import * as GameEngine from "../gameEngine/gameEngine";
-import { GameState } from "../gameEngine/gameEngine";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { GameEngine, GameState } from "../gameEngine/GameEngine";
 
 /**
  * this context is responsible for syncronizing the game state from the gameEngine
@@ -8,63 +13,39 @@ import { GameState } from "../gameEngine/gameEngine";
  * this allows us to decouple the game state and the ui state
  */
 
-interface GameStateContextType {
-  gameState: GameState;
-  playCard: (cardIndex: number) => void;
-  startGame: () => void;
-  endTurn: () => void;
-  processEnemyTurn: () => void;
-}
+const gameEngine = new GameEngine();
 
-const GameStateContext = createContext<GameStateContextType | undefined>(
-  undefined
-);
+const GameStateContext = createContext<{
+  gameEngine: GameEngine;
+  gameState?: GameState;
+}>({
+  gameEngine,
+  gameState: undefined,
+});
 
-interface GameStateProviderProps {
-  children: ReactNode;
-}
+export const GameStateProvider = ({ children }: { children: ReactNode }) => {
+  const [gameState, setGameState] = useState(gameEngine.getState());
 
-export const GameStateProvider: React.FC<GameStateProviderProps> = ({
-  children,
-}) => {
-  const [gameState, setGameState] = useState<GameState>(GameEngine.getState());
-
-  const playCard = (cardIndex: number): void => {
-    GameEngine.playCard(cardIndex);
-    setGameState(GameEngine.getState());
-  };
-
-  const startGame = (): void => {
-    GameEngine.startGame();
-    setGameState(GameEngine.getState());
-  };
-
-  const endTurn = (): void => {
-    GameEngine.endPlayerTurn();
-    setGameState(GameEngine.getState());
-  };
-
-  const processEnemyTurn = (): void => {
-    GameEngine.processEnemyTurn();
-    setGameState(GameEngine.getState());
-  };
-
-  const value = {
-    gameState,
-    playCard,
-    startGame,
-    endTurn,
-    processEnemyTurn,
-  };
+  // Game state is tracked in the GameEngine class
+  // in order to update the state stored in this context (UI state)
+  // we register a listener in the GameEngine class
+  // this listener is fired after every GameEngine state update
+  // and pushes state updates into the context, which cascades rerenders
+  // down the component tree to update the entire UI
+  useEffect(() => {
+    gameEngine.registerListener((state: GameState) => {
+      setGameState(state);
+    });
+  }, []);
 
   return (
-    <GameStateContext.Provider value={value}>
+    <GameStateContext.Provider value={{ gameEngine, gameState }}>
       {children}
     </GameStateContext.Provider>
   );
 };
 
-export const useGameState = (): GameStateContextType => {
+export const useGameState = () => {
   const context = useContext(GameStateContext);
   if (!context) {
     throw new Error("useGameState must be used within a GameStateProvider");

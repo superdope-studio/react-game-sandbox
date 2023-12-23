@@ -1,4 +1,5 @@
 import { Box, Card, CardContent, Typography } from "@mui/material";
+import card_smash from "./card_smash.png";
 
 import type { GameCard } from "../data/cards";
 
@@ -22,9 +23,11 @@ export const CardComponent = ({
         marginRight: "8px",
         marginBottom: "16px",
         height: "99%",
+        padding: "8px",
       }}
     >
       <CardContent>
+        {/* <Box component="img" src={card_smash} width="150px"></Box> */}
         <Typography
           sx={{ fontSize: 14, fontWeight: 600 }}
           color="text.primary"
