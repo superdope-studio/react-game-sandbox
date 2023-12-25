@@ -5,7 +5,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { GameEngine, GameState } from "../gameEngine/GameEngine";
+import { GameEngine, GameState } from "../gameEngine/gameEngine";
 
 /**
  * this context is responsible for syncronizing the game state from the gameEngine
